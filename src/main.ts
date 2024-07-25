@@ -3,47 +3,33 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import { ApiExpress } from "./main/api/api.express";
-import { createProductRepository } from "./factories/repositories/product/product.repository.factory";
-import { createProductUseCases } from "./factories/useCases/product/product.usecase.factory";
-import { createProductRoutes } from "./factories/routes/product/product.routes.factory";
 import { corsOptions } from "./main/api/config/cors";
-import { createUserRepository } from "./factories/repositories/user/user.repository.factory";
-import { createUserUseCases } from "./factories/useCases/user/user.usecase.factory";
-import { createUserRoutes } from "./factories/routes/user/user.routes.factory.";
 import { generateFolderStructure } from "./main/docs/make.structure";
-import { BcryptPasswordEncryptor } from "./infra/services/encryptor/bcrypt.encryptor";
-import { loginUserUseCases } from "./factories/useCases/auth/login.usecase.factory";
-import { loginRoutes } from "./factories/routes/auth/login.routes.factory.";
-import { JwtTokenGenerator } from "./infra/services/tokenGenerator/generate.token";
-import { MeRoutes } from "./factories/routes/auth/me.routes.factory";
+import { createCampaignRepository } from "./factories/repositories/campaign/campaign.repository.factory";
+import { createCampaignUseCases } from "./factories/useCases/campaign/campaign.usecase.factory";
+import { createCampaignRoutes } from "./factories/routes/campaign/campaign.routes.factory";
+import { createScheduleUseCases } from "./factories/useCases/schedule/schedule.usecase.factory";
+import { createRabbitRepository } from "./factories/repositories/rabbit/rabbit.repository.factory";
 
 function server() {
-  const passwordEncryptor = new BcryptPasswordEncryptor();
-  const jwtService = new JwtTokenGenerator();
-
-  const productRepository = createProductRepository();
-  const productUseCases = createProductUseCases(productRepository);
-  const productRoutes = createProductRoutes(productUseCases);
-
-  const userRepository = createUserRepository();
-  const userUseCases = createUserUseCases(userRepository, passwordEncryptor);
-  const userRoutes = createUserRoutes(userUseCases);
-
-  const loginUseCases = loginUserUseCases(
-    userRepository,
-    passwordEncryptor,
-    jwtService
+  const campaignRepository = createCampaignRepository();
+  const rabbitRepository = createRabbitRepository();
+  const campaignUseCases = createCampaignUseCases(campaignRepository);
+  const scheduleMessageUsecase = createScheduleUseCases(
+    campaignRepository,
+    rabbitRepository
   );
-  const loginRoute = loginRoutes(loginUseCases);
 
-  const meRoute = MeRoutes(userRepository);
+  const useCases = { campaignUseCases, scheduleMessageUsecase };
+
+  const campaignRoutes = createCampaignRoutes({
+    createCampaignUsecase: useCases.campaignUseCases.createCampaignUsecase,
+    scheduleMessageUsecase: useCases.scheduleMessageUsecase.scheduleMessageUsecase
+  });
 
   const globalMiddlawares = [];
 
-  const api = ApiExpress.create(
-    [...productRoutes, ...userRoutes, ...loginRoute, ...meRoute],
-    corsOptions
-  );
+  const api = ApiExpress.create([...campaignRoutes], corsOptions);
   const port = 8000;
   generateFolderStructure("./src");
   api.start(port);
