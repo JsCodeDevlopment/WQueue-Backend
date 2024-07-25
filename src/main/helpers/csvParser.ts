@@ -5,7 +5,7 @@ export const parseCSV = (filePath: string): Promise<Array<{ name: string; phone:
   const results: Array<{ name: string; phone: string }> = [];
   return new Promise((resolve, reject) => {
     fs.createReadStream(filePath)
-      .pipe(csv())
+      .pipe(csv({ separator: ';' }))
       .on('data', (data) => results.push(data))
       .on('end', () => resolve(results))
       .on('error', (error) => reject(error));

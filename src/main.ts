@@ -9,7 +9,7 @@ import { createCampaignRepository } from "./factories/repositories/campaign/camp
 import { createCampaignUseCases } from "./factories/useCases/campaign/campaign.usecase.factory";
 import { createCampaignRoutes } from "./factories/routes/campaign/campaign.routes.factory";
 import { createScheduleUseCases } from "./factories/useCases/schedule/schedule.usecase.factory";
-import { createRabbitRepository } from "./factories/repositories/rabbit/rabbit.repository.factory";
+import { createRabbitRepository } from "./factories/repositories/rabbit/campaign.repository.factory";
 
 function server() {
   const campaignRepository = createCampaignRepository();
@@ -26,6 +26,7 @@ function server() {
     createCampaignUsecase: useCases.campaignUseCases.createCampaignUsecase,
     scheduleMessageUsecase: useCases.scheduleMessageUsecase.scheduleMessageUsecase
   });
+  
 
   const globalMiddlawares = [];
 

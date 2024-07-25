@@ -1,36 +1,40 @@
-import amqp from 'amqplib';
-import { Campaign } from '../../../domain/campaign/entity/campaign.entity';
-import { MessageSchedulerGateway } from '../../../domain/campaign/gateway/schedule.gateway';
+import { Channel, Connection, connect } from "amqplib";
+import { Campaign } from "../../../domain/campaign/entity/campaign.entity";
+import { MessageSchedulerGateway } from "../../../domain/campaign/gateway/schedule.gateway";
+import { BadRequestError } from "../../../usecases/errors/bad.request.error";
+import { QUEUE_NAME, RABBITMQ_URL } from "../../../main/api/config/rabbitMQ";
 
 export class RabbitMQRepository implements MessageSchedulerGateway {
-  private connection: amqp.Connection | null = null;
-  private channel: amqp.Channel | null = null;
+  private connection: Connection | null = null;
+  private channel: Channel | null = null;
 
   public static create(): RabbitMQRepository {
     return new RabbitMQRepository();
   }
 
   async connect(): Promise<void> {
-    this.connection = await amqp.connect(process.env.RABBITMQ_URL || 'amqp://localhost:5672');
+    this.connection = await connect(RABBITMQ_URL);
     this.channel = await this.connection.createChannel();
-    await this.channel.assertQueue('whatsapp_campaign');
+    await this.channel.assertQueue(QUEUE_NAME);
   }
 
   async scheduleMessage(campaign: Campaign): Promise<void> {
     if (!this.channel) {
-      throw new Error('RabbitMQ channel is not initialized');
+      throw new BadRequestError("Channel is not initialized");
     }
-    this.channel.sendToQueue('whatsapp_campaign', Buffer.from(JSON.stringify(campaign)));
+    this.channel.sendToQueue(QUEUE_NAME, Buffer.from(JSON.stringify(campaign)));
   }
 
   async consumeMessages(): Promise<void> {
     if (!this.channel) {
-      throw new Error('RabbitMQ channel is not initialized');
+      throw new BadRequestError(
+        "Channel is not initialized to consume messages"
+      );
     }
-    this.channel.consume('whatsapp_campaign', (msg) => {
+    this.channel.consume(QUEUE_NAME, (msg) => {
       if (msg) {
         const campaign: Campaign = JSON.parse(msg.content.toString());
-        console.log('Message received:', campaign);
+        console.log("Message received:", campaign);
         // Logic to send WhatsApp message using Baileys API
         this.channel!.ack(msg);
       }
