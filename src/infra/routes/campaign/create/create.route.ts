@@ -7,6 +7,7 @@ import { parseCSV } from "../../../../main/helpers/csvParser";
 import { CreateCampaignInputDto } from "../../../../usecases/compaign/create/dto/create.input.dto";
 import { CreateCampignOutputDto } from "../../../../usecases/compaign/create/dto/create.output.dto";
 import { ScheduleInputDto } from "../../../../usecases/message/scheduleMessage/dto/schedule.input.dto";
+import { upload } from "../../../../main/api/config/multer";
 
 export class CreateCampaignRoute implements Route {
   private constructor(
@@ -77,6 +78,6 @@ export class CreateCampaignRoute implements Route {
   }
 
   public getMiddlewares() {
-    return [];
+    return [upload.single("file")];
   }
 }
