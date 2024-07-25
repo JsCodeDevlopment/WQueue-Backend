@@ -5,6 +5,7 @@ import cors, { CorsOptions } from "cors";
 import { errorHandlerMiddleware } from "../middlewares/error.handler.middlewares";
 import { setupSwagger } from "../docs/swagger/config/swagger.config";
 import { resolve } from "path";
+import { RabbitMQRepository } from "../../infra/repositories/rebbit/rebbit.repository";
 
 export class ApiExpress implements Api {
   private app: Express;
@@ -16,13 +17,16 @@ export class ApiExpress implements Api {
   ) {
     this.app = express();
     this.app.use(express.json());
-    this.app.use(express.static(resolve(__dirname, "../../..", "public")))
-    this.app.use('/uploads', express.static(resolve(__dirname, "../../..", "uploads")))
+    this.app.use(express.static(resolve(__dirname, "../../..", "public")));
+    this.app.use(
+      "/uploads",
+      express.static(resolve(__dirname, "../../..", "uploads"))
+    );
     this.app.use(cors(corsOptions));
 
     middlewares.forEach((middleware) => this.app.use(middleware));
     setupSwagger(this.app);
-    
+
     this.addRoutes(routes);
     this.app.use(errorHandlerMiddleware);
   }
@@ -47,7 +51,8 @@ export class ApiExpress implements Api {
   }
 
   public async start(port: number): Promise<void> {
-
+    await RabbitMQRepository.create().connect();
+    
     this.app.listen(port, () => {
       console.log(`Server running on port ${port}`);
       console.log(`http://localhost:${port}\n`);

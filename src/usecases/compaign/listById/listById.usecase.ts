@@ -1,40 +1,40 @@
-import { Product } from "../../../domain/product/entity/product.entity";
-import { ProductGateway } from "../../../domain/product/gateway/product.gateway";
-import { BadRequestError } from "../../errors/bad.request.error";
+import { Campaign } from "../../../domain/campaign/entity/campaign.entity";
+import { CampaignGateway } from "../../../domain/campaign/gateway/campaign.gateway";
 import { NotFoundError } from "../../errors/not.found.request.error";
 import { Usecase } from "../../usecase";
-import { ListProductByIdInputDto } from "./dto/listById.input.dto";
-import { ListProductByIdOutputDto } from "./dto/listById.output";
+import { ListCampaignByIdInputDto } from "./dto/listById.input.dto";
+import { ListCampaignByIdOutputDto } from "./dto/listById.output";
 
-export class ListProductByIdUsecase
-  implements Usecase<ListProductByIdInputDto, ListProductByIdOutputDto>
+export class ListCampaignByIdUsecase
+  implements Usecase<ListCampaignByIdInputDto, ListCampaignByIdOutputDto>
 {
-  private constructor(private readonly productGateway: ProductGateway) {}
+  private constructor(private readonly campaignGateway: CampaignGateway) {}
 
-  public static create(productGateway: ProductGateway) {
-    return new ListProductByIdUsecase(productGateway);
+  public static create(campaignGateway: CampaignGateway) {
+    return new ListCampaignByIdUsecase(campaignGateway);
   }
 
   public async execute(
-    input: ListProductByIdInputDto
-  ): Promise<ListProductByIdOutputDto> {
-    const aProduct = await this.productGateway.listById(input.id);
+    input: ListCampaignByIdInputDto
+  ): Promise<ListCampaignByIdOutputDto> {
+    const aCampaign = await this.campaignGateway.listById(input.id);
 
-    if (!aProduct) throw new NotFoundError("Product not found");
+    if (!aCampaign) throw new NotFoundError("Campaign not found");
 
-    const output = this.presentOutput(aProduct);
+    const output = this.presentOutput(aCampaign);
 
     return output;
   }
 
-  private presentOutput(product: Product): ListProductByIdOutputDto {
-    const output: ListProductByIdOutputDto = {
-      product: {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        description: product.description,
-        image: product.image,
+  private presentOutput(campaign: Campaign): ListCampaignByIdOutputDto {
+    const output: ListCampaignByIdOutputDto = {
+      campaign: {
+        id: campaign.id,
+        name: campaign.name,
+        phone: campaign.phone,
+        delay: campaign.delay,
+        schedule: campaign.schedule,
+        status: campaign.status,
       },
     };
 

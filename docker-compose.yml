@@ -8,5 +8,5 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      RABBITMQ_USER: user
-      RABBITMQ_PASSWORD: password
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin

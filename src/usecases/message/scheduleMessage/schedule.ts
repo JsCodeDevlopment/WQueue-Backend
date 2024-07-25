@@ -1,12 +1,10 @@
-// import { MessageSchedulerGateway } from "../../../domain/campaign/gateway/schedule.gateway";
 import { CampaignRepository } from "../../../infra/repositories/campaign/campaign.repository";
 import { RabbitMQRepository } from "../../../infra/repositories/rebbit/rebbit.repository";
+import { BadRequestError } from "../../errors/bad.request.error";
 import { Usecase } from "../../usecase";
 import { ScheduleInputDto } from "./dto/schedule.input.dto";
 
-export class ScheduleMessageUsecase
-  implements Usecase<ScheduleInputDto, void>
-{
+export class ScheduleMessageUsecase implements Usecase<ScheduleInputDto, void> {
   private constructor(
     private readonly campaignRepository: CampaignRepository,
     private readonly messageScheduler: RabbitMQRepository
@@ -23,14 +21,13 @@ export class ScheduleMessageUsecase
     campaignId: payload,
   }: ScheduleInputDto): Promise<void> {
     const campaign = await this.campaignRepository.listById(payload);
-    
+
     if (!campaign) {
-      throw new Error('Campaign not found');
+      throw new BadRequestError("Campaign not found");
     }
 
     await this.messageScheduler.scheduleMessage(campaign);
-    campaign.status = 'completed';
+    campaign.status = "completed";
     await this.campaignRepository.update(campaign);
-  
   }
 }

@@ -1,9 +1,10 @@
-export type ListProductByIdOutputDto = {
-  product: {
+export type ListCampaignByIdOutputDto = {
+  campaign: {
     id: string;
     name: string;
-    price: number;
-    description: string;
-    image: string;
+    phone: string;
+    schedule: Date;
+    delay: 2 | 5 | 7 | 10;
+    status: "pending" | "completed" | "failed";
   };
 };

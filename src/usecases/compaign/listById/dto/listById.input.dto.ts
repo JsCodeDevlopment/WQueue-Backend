@@ -1,3 +1,3 @@
-export type ListProductByIdInputDto = {
+export type ListCampaignByIdInputDto = {
   id: string;
 };

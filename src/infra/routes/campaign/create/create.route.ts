@@ -8,6 +8,7 @@ import { CreateCampaignInputDto } from "../../../../usecases/compaign/create/dto
 import { CreateCampignOutputDto } from "../../../../usecases/compaign/create/dto/create.output.dto";
 import { ScheduleInputDto } from "../../../../usecases/message/scheduleMessage/dto/schedule.input.dto";
 import { upload } from "../../../../main/api/config/multer";
+import { BadRequestError } from "../../../../usecases/errors/bad.request.error";
 
 export class CreateCampaignRoute implements Route {
   private constructor(
@@ -32,7 +33,12 @@ export class CreateCampaignRoute implements Route {
   public getHandler() {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const { file, delay, schedule } = req.body;
+        const { delay, schedule } = req.body;
+        const file = req.file?.path;
+
+        if (!file) {
+          throw new BadRequestError("Image path is undefined.");
+        }
         const campaignsData = await parseCSV(file);
 
         for (const data of campaignsData) {
