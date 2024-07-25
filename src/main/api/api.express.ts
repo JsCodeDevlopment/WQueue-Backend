@@ -2,9 +2,9 @@ import { Api } from "./interfaces/api.start";
 import express, { Express, RequestHandler } from "express";
 import { Route } from "./route";
 import cors, { CorsOptions } from "cors";
-import { connectDatabase } from "../../infra/sequelize";
 import { errorHandlerMiddleware } from "../middlewares/error.handler.middlewares";
 import { setupSwagger } from "../docs/swagger/config/swagger.config";
+import { resolve } from "path";
 
 export class ApiExpress implements Api {
   private app: Express;
@@ -16,6 +16,8 @@ export class ApiExpress implements Api {
   ) {
     this.app = express();
     this.app.use(express.json());
+    this.app.use(express.static(resolve(__dirname, "../../..", "public")))
+    this.app.use('/uploads', express.static(resolve(__dirname, "../../..", "uploads")))
     this.app.use(cors(corsOptions));
 
     middlewares.forEach((middleware) => this.app.use(middleware));
@@ -45,7 +47,6 @@ export class ApiExpress implements Api {
   }
 
   public async start(port: number): Promise<void> {
-    await connectDatabase();
 
     this.app.listen(port, () => {
       console.log(`Server running on port ${port}`);
