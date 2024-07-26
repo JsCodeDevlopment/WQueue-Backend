@@ -1,5 +1,8 @@
 import { RabbitMQRepository } from "../../../infra/repositories/rebbit/rebbit.repository";
+import { WWebJs } from "../../../main/api/config/WWebJs";
 
-export function createRabbitRepository() {
-  return RabbitMQRepository.create();
+export async function createRabbitRepository(wwebjs: WWebJs) {
+  const rabbitRepository = RabbitMQRepository.create(wwebjs);
+  await rabbitRepository.connect();
+  return rabbitRepository;
 }
