@@ -10,10 +10,18 @@ import { createCampaignUseCases } from "./factories/useCases/campaign/campaign.u
 import { createCampaignRoutes } from "./factories/routes/campaign/campaign.routes.factory";
 import { createScheduleUseCases } from "./factories/useCases/schedule/schedule.usecase.factory";
 import { createRabbitRepository } from "./factories/repositories/rabbit/campaign.repository.factory";
+import { WWebJs } from "./main/api/config/WWebJs";
+// import { Baileys } from "./main/api/config/baileys";
 
-function server() {
+async function server() {
+  // const baileysConnection = Baileys.create();
+  // await baileysConnection.connect();
+  const wwebjs = WWebJs.create()
+  wwebjs.connect();
+
   const campaignRepository = createCampaignRepository();
-  const rabbitRepository = createRabbitRepository();
+  const rabbitRepository = await createRabbitRepository(wwebjs);
+  await rabbitRepository.consumeMessages();
   const campaignUseCases = createCampaignUseCases(campaignRepository);
   const scheduleMessageUsecase = createScheduleUseCases(
     campaignRepository,
@@ -24,9 +32,9 @@ function server() {
 
   const campaignRoutes = createCampaignRoutes({
     createCampaignUsecase: useCases.campaignUseCases.createCampaignUsecase,
-    scheduleMessageUsecase: useCases.scheduleMessageUsecase.scheduleMessageUsecase
+    scheduleMessageUsecase:
+      useCases.scheduleMessageUsecase.scheduleMessageUsecase,
   });
-  
 
   const globalMiddlawares = [];
 

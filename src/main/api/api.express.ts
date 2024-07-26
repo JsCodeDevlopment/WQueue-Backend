@@ -6,6 +6,7 @@ import { errorHandlerMiddleware } from "../middlewares/error.handler.middlewares
 import { setupSwagger } from "../docs/swagger/config/swagger.config";
 import { resolve } from "path";
 import { RabbitMQRepository } from "../../infra/repositories/rebbit/rebbit.repository";
+import { WWebJs } from "./config/WWebJs";
 
 export class ApiExpress implements Api {
   private app: Express;
@@ -51,7 +52,8 @@ export class ApiExpress implements Api {
   }
 
   public async start(port: number): Promise<void> {
-    await RabbitMQRepository.create().connect();
+    const wwebjs = WWebJs.create();
+    await RabbitMQRepository.create(wwebjs).connect();
     
     this.app.listen(port, () => {
       console.log(`Server running on port ${port}`);

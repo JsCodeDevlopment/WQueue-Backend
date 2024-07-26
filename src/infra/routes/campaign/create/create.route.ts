@@ -41,6 +41,8 @@ export class CreateCampaignRoute implements Route {
         }
         const campaignsData = await parseCSV(file);
 
+        const response = [];
+
         for (const data of campaignsData) {
           const input: CreateCampaignInputDto = {
             name: data.name,
@@ -58,11 +60,13 @@ export class CreateCampaignRoute implements Route {
 
           await this.scheduleMessageService.execute(scheduleInput);
 
-          const response = this.present(output);
-
-          res.status(StatusCode.CREATED).json(response);
+          response.push(output);
         }
+        const presentResponse = response.map((item) => this.present(item));
+
+        res.status(StatusCode.CREATED).json(presentResponse);
       } catch (error) {
+        console.log("ERRO AQUI MANO →", error);
         next(error);
       }
     };

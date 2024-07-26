@@ -3,3 +3,5 @@ node_modules
 data
 .vercel
 dist
+.wwebjs_*
+projectStructure.json
