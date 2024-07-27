@@ -66,7 +66,6 @@ export class CreateCampaignRoute implements Route {
 
         res.status(StatusCode.CREATED).json(presentResponse);
       } catch (error) {
-        console.log("ERRO AQUI MANO →", error);
         next(error);
       }
     };

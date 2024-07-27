@@ -25,6 +25,12 @@ export class CreateCampaignUsecase
         "Some of the information was no longer received."
       );
 
+    // if (![2, 5, 7, 10].includes(delay)) {
+    //   // console.log("delay", delay);
+    //   // console.log("delay", delay, typeof delay);
+    //   throw new BadRequestError("The delay must be 2, 5, 7 or 10 seconds.");
+    // }
+
     const aCampaign = Campaign.create(name, phone, schedule, delay, "pending");
 
     await this.productGateway.create(aCampaign);
