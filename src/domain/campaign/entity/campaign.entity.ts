@@ -10,7 +10,8 @@ export class Campaign {
     phone: string,
     schedule: Date,
     delay: 2 | 5 | 7 | 10,
-    status: "pending" | "completed" | "failed"
+    status: "pending" | "completed" | "failed",
+    message: string
   ): Campaign {
     return new Campaign({
       id: crypto.randomUUID().toString(),
@@ -19,6 +20,7 @@ export class Campaign {
       schedule,
       delay,
       status,
+      message,
     });
   }
 
@@ -31,7 +33,8 @@ export class Campaign {
       this.props.name === "" ||
       this.props.phone === "" ||
       this.props.schedule === null ||
-      this.props.delay === null
+      this.props.delay === null ||
+      this.props.message === ""
     ) {
       throw new Error(
         "Invalid campaign. Some fields are empty. Please check the name, phone, schedule and delay."
@@ -61,6 +64,10 @@ export class Campaign {
 
   public get status() {
     return this.props.status;
+  }
+
+  public get message() {
+    return this.props.message;
   }
 
   public set status(value: "pending" | "completed" | "failed") {

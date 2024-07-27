@@ -1,3 +1,4 @@
+import { Console } from "console";
 import { Campaign } from "../../../domain/campaign/entity/campaign.entity";
 import { CampaignGateway } from "../../../domain/campaign/gateway/campaign.gateway";
 import { BadRequestError } from "../../errors/bad.request.error";
@@ -19,19 +20,14 @@ export class CreateCampaignUsecase
     phone,
     schedule,
     delay,
+    message
   }: CreateCampaignInputDto): Promise<CreateCampignOutputDto> {
-    if (!name || !phone || !schedule || !delay)
+    if (!name || !phone || !schedule || !delay || !message)
       throw new BadRequestError(
         "Some of the information was no longer received."
       );
 
-    // if (![2, 5, 7, 10].includes(delay)) {
-    //   // console.log("delay", delay);
-    //   // console.log("delay", delay, typeof delay);
-    //   throw new BadRequestError("The delay must be 2, 5, 7 or 10 seconds.");
-    // }
-
-    const aCampaign = Campaign.create(name, phone, schedule, delay, "pending");
+    const aCampaign = Campaign.create(name, phone, schedule, delay, "pending", message);
 
     await this.productGateway.create(aCampaign);
 

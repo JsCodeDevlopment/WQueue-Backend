@@ -3,4 +3,5 @@ export type CreateCampaignInputDto = {
   phone: string;
   schedule: Date;
   delay: 2 | 5 | 7 | 10;
+  message: string;
 };
