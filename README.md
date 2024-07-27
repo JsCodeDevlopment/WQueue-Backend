@@ -135,13 +135,7 @@ RABBITMQ_URL="amqp://admin:admin@localhost:5672"
 ```bash
 docker compose up -d
 ```
-4°→ Execute as migrações do Sequelize para configurar o banco de dados:
-```bash
-npm run migrate:up
-# ou
-yarn migrate:up
-```
-5°→ Execute a aplicação:
+4°→ Execute a aplicação:
 ```bash
 npm run dev
 # ou
