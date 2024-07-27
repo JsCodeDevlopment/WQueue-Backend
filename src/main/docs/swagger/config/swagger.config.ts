@@ -1,25 +1,18 @@
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { Express } from 'express';
-import { userSchemas } from '../components/user/schema/user.schema';
-import { productSchemas } from '../components/products/schema/products.schema';
-import { userSwaggerDefinitions } from '../components/user/user.definition';
-import { productSwaggerDefinitions } from '../components/products/products.definition';
+import { campaignSchemas } from '../components/campaign/schema/campaign.schema';
+import { campaignSwaggerDefinitions } from '../components/campaign/campaign.definition';
 import { errorSchema } from '../schemas/error.schema';
-import { loginSchema } from '../components/auth/schema/login.schema';
-import { authSwaggerDefinitions } from '../components/auth/auth.definition';
-import { loginInputSchema } from '../components/auth/schema/login.input.schema';
-import { userInputSchemas } from '../components/user/schema/user.input.schema';
-import { userOutputSchemas } from '../components/user/schema/user.output.schema';
-import { productInputSchemas } from '../components/products/schema/product.input.schema';
-import { productOutputSchemas } from '../components/products/schema/product.output.schema';
+import { campaignInputSchemas } from '../components/campaign/schema/campaign.input.schema';
+import { campaignOutputSchemas } from '../components/campaign/schema/campaign.output.schema';
 
 const swaggerDefinition = {
   openapi: '3.0.0',
   info: {
-    title: 'Teknix Backend API',
+    title: 'WQueue microservice API',
     version: '1.0.0',
-    description: 'Documentação da API do backend Teknix.',
+    description: 'Documentação do microsserviço de campanha para whatsapp em fila usando RabbitMQ.',
   },
   servers: [
     {
@@ -28,29 +21,15 @@ const swaggerDefinition = {
     },
   ],
   components: {
-    securitySchemes: {
-      bearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-      },
-    },
     schemas: {
-      ...loginSchema,
-      ...loginInputSchema,
       ...errorSchema,
-      ...userSchemas,
-      ...userInputSchemas,
-      ...userOutputSchemas,
-      ...productSchemas,
-      ...productInputSchemas,
-      ...productOutputSchemas,
+      ...campaignSchemas,
+      ...campaignInputSchemas,
+      ...campaignOutputSchemas,
     },
   },
   paths: {
-    ...authSwaggerDefinitions,
-    ...productSwaggerDefinitions,
-    ...userSwaggerDefinitions,
+    ...campaignSwaggerDefinitions,
   },
 };
 

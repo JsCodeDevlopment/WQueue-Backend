@@ -1,4 +1,3 @@
-import { Console } from "console";
 import { Campaign } from "../../../domain/campaign/entity/campaign.entity";
 import { CampaignGateway } from "../../../domain/campaign/gateway/campaign.gateway";
 import { BadRequestError } from "../../errors/bad.request.error";
@@ -22,6 +21,7 @@ export class CreateCampaignUsecase
     delay,
     message
   }: CreateCampaignInputDto): Promise<CreateCampignOutputDto> {
+    console.log("message", message);
     if (!name || !phone || !schedule || !delay || !message)
       throw new BadRequestError(
         "Some of the information was no longer received."
