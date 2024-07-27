@@ -8,14 +8,15 @@ export class CampaignRepository implements CampaignGateway {
     return new CampaignRepository();
   }
 
-  public async create(compaign: Campaign): Promise<void> {
+  public async create(campaign: Campaign): Promise<void> {
     const data = {
-      id: compaign.id,
-      name: compaign.name,
-      phone: compaign.phone,
-      schedule: compaign.schedule,
-      delay: compaign.delay,
-      status: compaign.status,
+      id: campaign.id,
+      name: campaign.name,
+      phone: campaign.phone,
+      schedule: campaign.schedule,
+      delay: campaign.delay,
+      status: campaign.status,
+      message: campaign.message
     };
 
     this.campaigns.push(Campaign.with(data));
@@ -32,6 +33,7 @@ export class CampaignRepository implements CampaignGateway {
         schedule: c.schedule,
         delay: c.delay,
         status: c.status,
+        message: c.message
       })
     );
   }
@@ -50,6 +52,7 @@ export class CampaignRepository implements CampaignGateway {
       schedule: campign.schedule,
       delay: campign.delay,
       status: campign.status,
+      message: campign.message
     });
   }
 
@@ -61,6 +64,7 @@ export class CampaignRepository implements CampaignGateway {
       schedule: campign.schedule,
       delay: campign.delay,
       status: campign.status,
+      message: campign.message
     };
 
     const campignIndex = this.campaigns.findIndex((c) => c.id === campign.id);

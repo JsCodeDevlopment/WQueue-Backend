@@ -19,13 +19,15 @@ export class CreateCampaignUsecase
     phone,
     schedule,
     delay,
+    message
   }: CreateCampaignInputDto): Promise<CreateCampignOutputDto> {
-    if (!name || !phone || !schedule || !delay)
+    console.log("message", message);
+    if (!name || !phone || !schedule || !delay || !message)
       throw new BadRequestError(
         "Some of the information was no longer received."
       );
 
-    const aCampaign = Campaign.create(name, phone, schedule, delay, "pending");
+    const aCampaign = Campaign.create(name, phone, schedule, delay, "pending", message);
 
     await this.productGateway.create(aCampaign);
 

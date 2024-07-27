@@ -33,7 +33,7 @@ export class CreateCampaignRoute implements Route {
   public getHandler() {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const { delay, schedule } = req.body;
+        const { delay, schedule, message } = req.body;
         const file = req.file?.path;
 
         if (!file) {
@@ -49,6 +49,7 @@ export class CreateCampaignRoute implements Route {
             phone: data.phone,
             delay,
             schedule,
+            message,
           };
 
           const output: CreateCampignOutputDto =
@@ -66,7 +67,6 @@ export class CreateCampaignRoute implements Route {
 
         res.status(StatusCode.CREATED).json(presentResponse);
       } catch (error) {
-        console.log("ERRO AQUI MANO →", error);
         next(error);
       }
     };

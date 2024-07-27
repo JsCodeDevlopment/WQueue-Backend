@@ -11,9 +11,7 @@ export class RabbitMQRepository implements MessageSchedulerGateway {
   private connection: Connection | null = null;
   private channel: Channel | null = null;
 
-  private constructor(
-    private readonly wwebjs: WWebJs,
-  ) {}
+  private constructor(private readonly wwebjs: WWebJs) {}
 
   public static create(wwebjs: WWebJs): RabbitMQRepository {
     if (!RabbitMQRepository.instance) {
@@ -28,7 +26,7 @@ export class RabbitMQRepository implements MessageSchedulerGateway {
     }
     this.connection = await connect(RABBITMQ_URL);
     this.channel = await this.connection.createChannel();
-    await this.channel.assertQueue(QUEUE_NAME);
+    await this.channel.assertQueue(QUEUE_NAME, { durable: true });
     RabbitMQRepository.isConnected = true;
   }
 
@@ -36,7 +34,16 @@ export class RabbitMQRepository implements MessageSchedulerGateway {
     if (!this.channel) {
       throw new BadRequestError("Channel is not initialized");
     }
-    this.channel.sendToQueue(QUEUE_NAME, Buffer.from(JSON.stringify(campaign)));
+    this.channel.sendToQueue(
+      QUEUE_NAME,
+      Buffer.from(JSON.stringify(campaign)),
+      {
+        headers: {
+          "x-delay": +campaign.delay * 1000,
+        },
+        persistent: true,
+      }
+    );
   }
 
   async consumeMessages(): Promise<void> {
@@ -45,17 +52,43 @@ export class RabbitMQRepository implements MessageSchedulerGateway {
         "Channel is not initialized to consume messages"
       );
     }
-    this.channel.consume(QUEUE_NAME, (msg) => {
-      // console.log("Message received:", msg);
-      if (msg) {
-        const campaign: Campaign = JSON.parse(msg.content.toString()).props;
-        // console.log("Message received:", campaign.phone);
-        this.wwebjs.sendMessage(campaign.phone, "Hello, this is a test message.");
 
-        // console.log("Message received:", campaign);
-        // Logic to send WhatsApp message using Baileys API
-        this.channel!.ack(msg);
+    const processMessage = async (msg: any) => {
+      const campaign: Campaign = JSON.parse(msg.content.toString()).props;
+
+      const sendMessage = async () => {
+        try {
+          await this.wwebjs.sendMessage(
+            campaign.phone,
+            campaign.message
+          );
+          this.channel!.ack(msg);
+        } catch (error) {
+          console.error("Failed to send WhatsApp message", error);
+        }
+      };
+
+      await sendMessage();
+    };
+
+    const consumeNextMessage = async () => {
+      if (this.channel) {
+        this.channel.consume(
+          QUEUE_NAME,
+          async (msg) => {
+            if (msg) {
+              const campaign: Campaign = JSON.parse(
+                msg.content.toString()
+              ).props;
+              await processMessage(msg);
+              setTimeout(consumeNextMessage, +campaign.delay * 1000); // Delay between each message
+            }
+          },
+          { noAck: false }
+        );
       }
-    });
+    };
+
+    consumeNextMessage();
   }
 }

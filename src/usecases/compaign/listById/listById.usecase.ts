@@ -35,6 +35,7 @@ export class ListCampaignByIdUsecase
         delay: campaign.delay,
         schedule: campaign.schedule,
         status: campaign.status,
+        message: campaign.message,
       },
     };
 

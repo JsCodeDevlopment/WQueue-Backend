@@ -9,7 +9,7 @@ import { createCampaignRepository } from "./factories/repositories/campaign/camp
 import { createCampaignUseCases } from "./factories/useCases/campaign/campaign.usecase.factory";
 import { createCampaignRoutes } from "./factories/routes/campaign/campaign.routes.factory";
 import { createScheduleUseCases } from "./factories/useCases/schedule/schedule.usecase.factory";
-import { createRabbitRepository } from "./factories/repositories/rabbit/campaign.repository.factory";
+import { createRabbitRepository } from "./factories/repositories/rabbit/rabbit.repository.factory";
 import { WWebJs } from "./main/api/config/WWebJs";
 // import { Baileys } from "./main/api/config/baileys";
 
@@ -40,7 +40,7 @@ async function server() {
 
   const api = ApiExpress.create([...campaignRoutes], corsOptions);
   const port = 8000;
-  generateFolderStructure("./src");
+  // generateFolderStructure("./src");
   api.start(port);
 }
 

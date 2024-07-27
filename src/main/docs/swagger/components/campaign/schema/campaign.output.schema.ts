@@ -1,5 +1,5 @@
-export const productOutputSchemas = {
-  ProductOutput: {
+export const campaignOutputSchemas = {
+  CampaignOutput: {
     type: "object",
     properties: {
       id: {
