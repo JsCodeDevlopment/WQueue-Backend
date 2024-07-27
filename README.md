@@ -103,7 +103,14 @@ src
 - Swagger: A documentação Swagger, configurada na pasta main/docs/swagger, descreve as APIs e suas rotas. A documentação é gerada a partir das definições e schemas Swagger e está acessível para os desenvolvedores via Swagger UI.
 
 ### 📱 Exemplo de Fluxo de Criação de uma Campanha
-- Requisição: O cliente envia uma requisição POST /campaigns com um corpo multipart/form-data contendo os dados da campanha.
+- Requisição: O cliente envia uma requisição POST /campaigns com um corpo multipart/form-data contendo os dados da campanha ex.:
+```json
+"file": "CONTATOS.csv",
+"delay": 5,
+"schedule": "2024-07-30T10:34:00Z"
+"message": "Contract the best dev web NOW!"
+```
+.
 - Middleware: O middleware do multer pega o csv enviado e salva na pasta uploads.
 - Controlador: O controlador CreateCampaignController recebe a requisição e chama CreateCampaignUseCase.
 - Caso de Uso: CreateCampaignUseCase valida os dados e utiliza o repositório para persistir o produto.
