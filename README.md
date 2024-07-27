@@ -122,7 +122,7 @@ src
 ```bash
 npm install
 # ou
-yarn install
+yarn
 ```
 2°→ Configure o RabbitMQ e a Queue no arquivo `.env` crie um arquivo `.env` e cole o código abaixo:
 ```env
