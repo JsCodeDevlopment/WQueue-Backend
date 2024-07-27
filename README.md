@@ -1,8 +1,8 @@
-# Teknix - Back-end Typescript + Clean Architecture
+# WQueue WhatsApp Microservice - Back-end Typescript + Clean Architecture
 
 ## 💬 Descrição.
 
-Este projeto é uma api com sistema de autenticação e CRUD de produtos.
+Este projeto é um microsserviço desenvolvido para gerenciar o envio de mensagens em massa para números de WhatsApp utilizando RabbitMQ para gerenciamento de filas e uma API de WhatsApp para o envio das mensagens. O sistema suporta o agendamento das mensagens e a definição de atrasos entre os envios.
 
 ## 🚧 Estrutura do Projeto.
 A arquitetura segue o padrão de Clean Architecture e Inversão de Dependência. As principais camadas são:
@@ -17,64 +17,29 @@ Contém implementações específicas de infraestrutura, como repositórios, rot
 
 📂 **Esquema de pastas:** Este projeto segue os princípios da Clean Architecture, dividindo o código em camadas bem definidas:
 ```
-  src
+src
 ├── domain
-│   ├── product
+│   ├── campaign
 │   │   ├── entity
 │   │   ├── gateway
 │   │   └── interfaces
-│   └── user
-│       ├── entity
-│       ├── gateway
-│       └── interfaces
 ├── factories
 │   ├── repositories
-│   │   ├── product
-│   │   └── user
+│   │   ├── campaign
+│   │   └── rabbit
 │   ├── routes
-│   │   ├── auth
-│   │   ├── product
-│   │   └── user
+│   │   └── campaign
 │   └── useCases
-│       ├── auth
-│       ├── product
-│       └── user
+│       ├── campaign
+│       └── schedule
 ├── infra
 │   ├── repositories
-│   │   ├── product
-│   │   └── user
-│   ├── routes
-│   │   ├── auth
-│   │   │   ├── login
-│   │   │   ├── me
-│   │   │   ├── products
-│   │   │   │   ├── create
-│   │   │   │   │   └── dto
-│   │   │   │   ├── delete
-│   │   │   │   │   └── dto
-│   │   │   │   ├── list
-│   │   │   │   │   └── dto
-│   │   │   │   ├── listById
-│   │   │   │   │   └── dto
-│   │   │   │   └── update
-│   │   │   │       └── dto
-│   │   │   ├── user
-│   │   │   │   ├── create
-│   │   │   │   │   └── dto
-│   │   │   │   ├── delete
-│   │   │   │   │   └── dto
-│   │   │   │   ├── list
-│   │   │   │   │   └── dto
-│   │   │   │   └── listById
-│   │   │   │       └── dto
-│   ├── sequelize
-│   │   ├── migrations
-│   │   ├── models
-│   │   │   ├── product
-│   │   │   └── user
-│   └── services
-│       ├── encryptor
-│       └── tokenGenerator
+│   │   ├── campaign
+│   │   └── rabbit
+│   └── routes
+│       └── campaign
+│           └── create
+│               └── dto
 ├── main
 │   ├── @types
 │   ├── adapters
@@ -86,42 +51,21 @@ Contém implementações específicas de infraestrutura, como repositórios, rot
 │   ├── docs
 │   │   └── swagger
 │   │       ├── components
-│   │       │   ├── auth
-│   │       │   │   └── schema
-│   │       │   ├── products
-│   │       │   │   └── schema
-│   │       │   └── user
+│   │       │   └── campaign
 │   │       │       └── schema
 │   │       ├── config
 │   │       ├── responses
 │   │       └── schemas
+│   ├── helpers
 │   └── middlewares
 └── usecases
-    ├── auth
-    │   ├── generateToken
-    │   │   └── dto
-    │   ├── login
-    │   │   └── dto
-    ├── errors
-    ├── product
+    ├── campaign
     │   ├── create
     │   │   └── dto
-    │   ├── delete
-    │   │   └── dto
-    │   ├── list
-    │   │   └── dto
-    │   ├── listById
-    │   │   └── dto
-    │   └── update
+    │   └── listById
     │       └── dto
-    └── user
-        ├── create
-        │   └── dto
-        ├── delete
-        │   └── dto
-        ├── list
-        │   └── dto
-        └── listById
+    └── message
+        └── scheduleMessage
             └── dto
 ```
 ## ⚙ Resumo da Estrutura.
@@ -135,8 +79,8 @@ Contém implementações específicas de infraestrutura, como repositórios, rot
 ## 🪀 Fluxo da Aplicação.
 
 ### Recepção da Requisição:
-- Cliente: Envia uma requisição HTTP para o servidor (por exemplo, POST /products para criar um novo produto).
-- Infraestrutura de Roteamento: As rotas são configuradas na camada infra/routes. As rotas direcionam a requisição para os controladores apropriados (por exemplo, product.route.ts).
+- Cliente: Envia uma requisição HTTP para o servidor para agendar o envio de mensagens.
+- Infraestrutura de Roteamento: As rotas são configuradas na camada infra/routes e direcionam a requisição para os controladores apropriados.
 
 ### Tratamento da Requisição:
 - Middlewares: Antes de alcançar o controlador, a requisição passa pelos middlewares definidos (por exemplo, autenticação, validação).
@@ -144,30 +88,26 @@ Contém implementações específicas de infraestrutura, como repositórios, rot
 
 ### Caso de Uso (UseCase):
 - O caso de uso recebe o DTO de entrada.
-- Cria uma instância da entidade Product usando o método Ex.: Product.create.
-- Interage com o repositório Ex.: (ProductGateway) para persistir o produto no banco de dados.
-- Gera um DTO de saída Ex.: (CreateProductOutputDto) com os dados do produto criado.
+- Cria uma instância da entidade Campaign usando o método Ex.: Campaign.create.
+- Interage com o repositório Ex.: (CampaignGateway) para persistir o produto no banco de dados.
+- Gera um DTO de saída Ex.: (CreateCampaignOutputDto) com os dados do produto criado.
 
 ### Interação com o Domínio:
-- Camada de Domínio (domain): O caso de uso interage com as entidades e interfaces de domínio (por exemplo, Product entity) para realizar a lógica de negócios.
+- Camada de Domínio (domain): O caso de uso interage com as entidades e interfaces de domínio (por exemplo, Campaign entity) para realizar a lógica de negócios.
 
 ### Repositório (Gateway):
 - Camada de Repositórios (factories/repositories e infra/repositories): O caso de uso utiliza os repositórios para acessar e manipular os dados no banco de dados. A implementação do repositório está na camada infra/repositories, mas a interface do repositório é definida na camada factories/repositories.
-- Sequelize: Os repositórios utilizam o Sequelize para interagir com o banco de dados, e os modelos são definidos na camada infra/sequelize/models.
-
-### Persistência dos dados:
-- Banco de Dados: Os dados são armazenados no banco de dados PostgreSQL conforme definido nos modelos Sequelize. As operações CRUD são realizadas por meio dos métodos do Sequelize.
 
 ### Resposta da Rota:
 - Casos de Uso e Controladores: Após a execução do caso de uso, o controlador formata a resposta e a envia de volta ao cliente.
 - Swagger: A documentação Swagger, configurada na pasta main/docs/swagger, descreve as APIs e suas rotas. A documentação é gerada a partir das definições e schemas Swagger e está acessível para os desenvolvedores via Swagger UI.
 
-### 📱 Exemplo de Fluxo de Criação de Produto
-- Requisição: O cliente envia uma requisição POST /products com um corpo JSON contendo os dados do produto.
-- Middleware: O middleware de autenticação verifica o token JWT. Se válido, o request prossegue.
-- Controlador: O controlador CreateProductController recebe a requisição e chama CreateProductUseCase.
-- Caso de Uso: CreateProductUseCase valida os dados e utiliza o repositório para persistir o produto.
-- Repositório: O repositório ProductRepository usa o Sequelize para salvar o produto no banco de dados.
+### 📱 Exemplo de Fluxo de Criação de uma Campanha
+- Requisição: O cliente envia uma requisição POST /campaigns com um corpo multipart/form-data contendo os dados da campanha.
+- Middleware: O middleware do multer pega o csv enviado e salva na pasta uploads.
+- Controlador: O controlador CreateCampaignController recebe a requisição e chama CreateCampaignUseCase.
+- Caso de Uso: CreateCampaignUseCase valida os dados e utiliza o repositório para persistir o produto.
+- Repositório: O repositório RabbitMQRepository usa o RabbitMQ para criar e gerenciar os as queues para que os dados cheguem até o consumer.
 - Resposta: O controlador formata a resposta e a envia ao cliente. A resposta é documentada no Swagger para referência.
 
 ## 🎯 Instalação.
@@ -177,18 +117,12 @@ npm install
 # ou
 yarn install
 ```
-2°→ Configure o banco de dados no arquivo `.env` crie um arquivo `.env` e cole o código abaixo:
+2°→ Configure o RabbitMQ e a Queue no arquivo `.env` crie um arquivo `.env` e cole o código abaixo:
 ```env
-DB_HOST="localhost"
-DB_NAME="teknix-express"
-DB_USER="postgres"
-DB_PASS="password"
-DB_PORT=5432
-DB_DIALECT="postgres"
+WHITELIST_URLS="http://localhost:3000,http://localhost:3001,http://localhost:8000"
 
-JWT_SECRET="token-verification"
-
-WHITELIST_URLS="http://localhost:8000"
+QUEUE_NAME="whatsapp_campaign"
+RABBITMQ_URL="amqp://admin:admin@localhost:5672"
 ```
 3°→ Subir o container no docker:
 ```bash
@@ -212,10 +146,9 @@ yarn dev
 
  <div align="center">
   <image src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" />
-  <image src="https://img.shields.io/badge/Sequelize-52B0E7?style=for-the-badge&logo=Sequelize&logoColor=white" />
   <image src="https://img.shields.io/badge/Express%20js-000000?style=for-the-badge&logo=express&logoColor=white" />
   <image src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=Swagger&logoColor=white" />
-  <image src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white" />
+  <image src="https://img.shields.io/badge/rabbitmq-%23FF6600.svg?&style=for-the-badge&logo=rabbitmq&logoColor=white" />
 </div>
 
 ## 👨‍💻 Desenvolvedor.
